@@ -50,7 +50,7 @@ public class Http11Processor implements Runnable, Processor {
         final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
         final List<String> request = new ArrayList<>();
         String line;
-        while (!"".equals(line = bufferedReader.readLine())) {
+        while ((line = bufferedReader.readLine()) != null && !line.isEmpty()) {
             request.add(line);
         }
 
