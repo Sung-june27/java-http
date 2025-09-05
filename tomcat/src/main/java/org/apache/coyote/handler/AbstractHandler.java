@@ -19,7 +19,7 @@ public abstract class AbstractHandler {
         }
     }
 
-    protected static String createOkResponse(
+    protected String createOkResponse(
             final String responseBody,
             final String contentType
     ) {
@@ -31,7 +31,29 @@ public abstract class AbstractHandler {
                 responseBody);
     }
 
-    protected static String createNotFoundResponse() {
+    protected String createNotFoundResponse() {
         return "HTTP/1.1 404 NOT FOUND ";
+    }
+
+    protected String createUnauthorizedResponse() throws IOException {
+        final var responseBody = getStaticResponseBody("/401.html");
+
+        return String.join("\r\n",
+                "HTTP/1.1 401 UNAUTHORIZED ",
+                "Content-Type: text/html;charset=utf-8 ",
+                "Content-Length: " + responseBody.getBytes().length + " ",
+                "",
+                responseBody);
+    }
+
+    protected String createFoundResponse() throws IOException {
+        final var responseBody = getStaticResponseBody("/index.html");
+
+        return String.join("\r\n",
+                "HTTP/1.1 302 FOUND ",
+                "Content-Type: text/html;charset=utf-8 ",
+                "Content-Length: " + responseBody.getBytes().length + " ",
+                "",
+                responseBody);
     }
 }

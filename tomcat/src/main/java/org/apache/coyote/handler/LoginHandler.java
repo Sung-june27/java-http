@@ -18,7 +18,7 @@ public class LoginHandler extends AbstractHandler {
         final String[] splitRequestUri = requestUri.split("\\?");
         final String resource = getResource(splitRequestUri[0]);
         if (existsQueryString(splitRequestUri)) {
-            findMemberByQuery(splitRequestUri[1]);
+            return findMemberByQuery(splitRequestUri[1]);
         }
         final String responseBody = getStaticResponseBody(resource);
 
@@ -37,12 +37,18 @@ public class LoginHandler extends AbstractHandler {
         return splitRequestUri.length > 1;
     }
 
-    private void findMemberByQuery(final String queryString) {
+    private String findMemberByQuery(final String queryString) throws IOException {
         final Map<String, String> params = getParams(queryString);
-        final User user = InMemoryUserRepository.findByAccount(params.get("account"))
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
-        validateLogin(user, params.get("password"));
-        System.out.println("user: " + user);
+        try {
+            final User user = InMemoryUserRepository.findByAccount(params.get("account"))
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+            validateLogin(user, params.get("password"));
+            System.out.println("user: " + user);
+        } catch (Exception e) {
+            return createUnauthorizedResponse();
+        }
+
+        return createFoundResponse();
     }
 
     private Map<String, String> getParams(final String queryString) {
@@ -56,7 +62,7 @@ public class LoginHandler extends AbstractHandler {
         return params;
     }
 
-    private  void validateLogin(
+    private void validateLogin(
             final User user,
             final String password
     ) {
