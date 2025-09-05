@@ -9,7 +9,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.coyote.Processor;
-import org.apache.coyote.handler.AbstractHandler;
+import org.apache.coyote.handler.Handler;
 import org.apache.coyote.handler.HandlerMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +66,7 @@ public class Http11Processor implements Runnable, Processor {
 
     public String getResponse(final String requestUri) throws IOException {
         final HandlerMapper handlerMapper = HandlerMapper.getInstance();
-        final AbstractHandler handler = handlerMapper.getHandler(requestUri);
+        final Handler handler = handlerMapper.getHandler(requestUri);
         if (handler == null) {
             return "HTTP/1.1 404 NOT FOUND ";
         }

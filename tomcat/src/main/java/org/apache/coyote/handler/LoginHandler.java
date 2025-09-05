@@ -5,24 +5,39 @@ import com.techcourse.model.User;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.HttpStatus;
+import org.apache.coyote.ResponseBuilder;
 
-public class LoginHandler extends AbstractHandler {
+public class LoginHandler implements Handler {
+
+    private final ResponseBuilder responseBuilder;
+
+    public LoginHandler(final ResponseBuilder responseBuilder) {
+        this.responseBuilder = responseBuilder;
+    }
 
     @Override
-    public boolean canHandle(final String requestTarget) {
-        return requestTarget.startsWith("/login");
+    public boolean canHandle(final String requestUri) {
+        return requestUri.startsWith("/login");
     }
 
     @Override
     public String handle(final String requestUri) throws IOException {
-        final String[] splitRequestUri = requestUri.split("\\?");
-        final String resource = getResource(splitRequestUri[0]);
-        if (existsQueryString(splitRequestUri)) {
-            return findMemberByQuery(splitRequestUri[1]);
+        final String queryString = getQueryString(requestUri);
+        if (queryString.isEmpty()) {
+            return responseBuilder.buildStaticResponse(HttpStatus.OK, getResource(requestUri));
         }
-        final String responseBody = getStaticResponseBody(resource);
 
-        return createOkResponse(responseBody, "text/html;charset=utf-8");
+        return login(queryString);
+    }
+
+    private String getQueryString(final String requestUri) {
+        final int index = requestUri.indexOf('?');
+        if (index == -1) {
+            return "";
+        }
+
+        return requestUri.substring(index + 1);
     }
 
     private String getResource(final String resource) {
@@ -33,22 +48,19 @@ public class LoginHandler extends AbstractHandler {
         return resource;
     }
 
-    private boolean existsQueryString(final String[] splitRequestUri) {
-        return splitRequestUri.length > 1;
-    }
-
-    private String findMemberByQuery(final String queryString) throws IOException {
+    // TODO: Service 분리 고려해보기 (Controller 도입 후)
+    private String login(final String queryString) throws IOException {
         final Map<String, String> params = getParams(queryString);
         try {
             final User user = InMemoryUserRepository.findByAccount(params.get("account"))
                     .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
             validateLogin(user, params.get("password"));
             System.out.println("user: " + user);
-        } catch (Exception e) {
-            return createUnauthorizedResponse();
+        } catch (IllegalArgumentException e) {
+            return responseBuilder.buildStaticResponse(HttpStatus.UNAUTHORIZED, "/401.html");
         }
 
-        return createFoundResponse();
+        return responseBuilder.buildStaticResponse(HttpStatus.FOUND, "/index.html");
     }
 
     private Map<String, String> getParams(final String queryString) {
