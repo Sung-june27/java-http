@@ -16,7 +16,8 @@ public class StaticResourceHandler implements Handler {
     public boolean canHandle(final String requestUri) {
         return requestUri.endsWith(".html") ||
                requestUri.endsWith(".css") ||
-               requestUri.endsWith(".js");
+               requestUri.endsWith(".js") ||
+               requestUri.endsWith(".svg");
     }
 
     @Override

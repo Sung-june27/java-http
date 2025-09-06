@@ -5,10 +5,12 @@ import com.techcourse.model.User;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import java.util.UUID;
 import org.apache.HttpCookie;
 import org.apache.HttpMethod;
 import org.apache.HttpStatus;
+import org.apache.catalina.Manager;
+import org.apache.catalina.session.Session;
+import org.apache.catalina.session.SessionManager;
 import org.apache.coyote.HttpRequest;
 import org.apache.coyote.HttpResponse;
 import org.apache.coyote.StaticResourceLoader;
@@ -42,6 +44,10 @@ public class LoginHandler implements Handler {
             final HttpRequest request,
             final HttpResponse response
     ) throws IOException {
+        if (request.getSession(false) != null) {
+            response.redirect("/index.html");
+            return response;
+        }
         final String body = StaticResourceLoader.load(request.getPath() + ".html");
         response.setStatus(HttpStatus.OK);
         response.setHeaders(Map.of(
@@ -58,12 +64,13 @@ public class LoginHandler implements Handler {
             final HttpResponse response
     ) {
         try {
-            login(request);
+            final Manager manager = SessionManager.getInstance();
+            final User user = login(request);
             final HttpCookie cookie = request.getCookie();
-            if (!cookie.containsCookie(JSESSIONID)) {
-                final String sessionId = UUID.randomUUID().toString();
-                cookie.setCookie(JSESSIONID, sessionId);
-            }
+            final Session session = request.getSession(true);
+            session.setAttribute("user", user);
+            cookie.setCookie(JSESSIONID, session.getId());
+            manager.add(session);
             response.redirect("/index.html");
             response.setCookie(cookie);
 
@@ -76,12 +83,14 @@ public class LoginHandler implements Handler {
     }
 
     // TODO: Service 분리 고려해보기 (Controller 도입 후)
-    private void login(final HttpRequest request) {
+    private User login(final HttpRequest request) {
         final Map<String, String> params = request.getBody();
         final User user = InMemoryUserRepository.findByAccount(params.get("account"))
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
         validatePassword(user, params.get("password"));
         System.out.println("user: " + user);
+
+        return user;
     }
 
     private void validatePassword(

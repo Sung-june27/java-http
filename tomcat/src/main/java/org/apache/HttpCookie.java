@@ -24,8 +24,12 @@ public class HttpCookie {
         cookies.put(name, value);
     }
 
-    public boolean containsCookie(String name) {
-        return cookies.containsKey(name);
+    public String getCookie(String name) {
+        return cookies.get(name);
+    }
+
+    public Map<String, String> getCookies() {
+        return cookies;
     }
 
     @Override

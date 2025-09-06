@@ -33,7 +33,12 @@ public class HttpResponse {
     }
 
     public void setCookie(final HttpCookie cookie) {
-        headers.put("Set-Cookie", cookie.toString());
+        final Map<String, String> cookies = cookie.getCookies();
+        cookies.keySet()
+                .stream()
+                .map(key -> key + "=" + cookies.get(key))
+                .forEach(cookieString -> headers.put("Set-Cookie", cookieString));
+
         this.cookie = cookie;
     }
 
