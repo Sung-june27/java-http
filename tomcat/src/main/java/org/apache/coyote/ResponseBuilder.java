@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.HttpStatus;
 
 public class ResponseBuilder {
@@ -21,9 +23,9 @@ public class ResponseBuilder {
             final var responseBody = new String(resource.readAllBytes(), StandardCharsets.UTF_8);
 
             return String.join("\r\n",
-                    "HTTP/1.1 " + httpStatus.getStatusCode() + " " + httpStatus.getReasonPhrase() + " ",
-                    "Content-Type: " + getContentType(resourcePath) + ";charset=utf-8 ",
-                    "Content-Length: " + responseBody.getBytes().length + " ",
+                    "HTTP/1.1 " + httpStatus.getStatusCode() + " " + httpStatus.getReasonPhrase(),
+                    "Content-Type: " + getContentType(resourcePath) + ";charset=utf-8",
+                    "Content-Length: " + responseBody.getBytes().length,
                     "",
                     responseBody);
         }
