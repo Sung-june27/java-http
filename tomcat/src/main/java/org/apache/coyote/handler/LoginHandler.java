@@ -3,19 +3,16 @@ package org.apache.coyote.handler;
 import com.techcourse.db.InMemoryUserRepository;
 import com.techcourse.model.User;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.UUID;
 import org.apache.HttpMethod;
 import org.apache.HttpStatus;
 import org.apache.coyote.HttpRequest;
-import org.apache.coyote.ResponseBuilder;
+import org.apache.coyote.HttpResponse;
+import org.apache.coyote.StaticResourceLoader;
 
 public class LoginHandler implements Handler {
-
-    private final ResponseBuilder responseBuilder;
-
-    public LoginHandler(final ResponseBuilder responseBuilder) {
-        this.responseBuilder = responseBuilder;
-    }
 
     @Override
     public boolean canHandle(final String requestUri) {
@@ -23,39 +20,61 @@ public class LoginHandler implements Handler {
     }
 
     @Override
-    public String handle(final HttpRequest request) throws IOException {
+    public HttpResponse handle(
+            final HttpRequest request,
+            final HttpResponse response
+    ) throws IOException {
         if (HttpMethod.GET.equals(request.getMethod())) {
-            return responseBuilder.buildStaticResponse(HttpStatus.OK, getResource(request.getUri()));
+            return doGet(request, response);
         }
         if (HttpMethod.POST.equals(request.getMethod())) {
-            return login(request);
+            return doPost(request, response);
         }
 
         // TODO: 405 처리
-        return "";
+        return response;
     }
 
-    private String getResource(final String resource) {
-        if (!resource.endsWith(".html")) {
-            return resource + ".html";
-        }
+    private static HttpResponse doGet(
+            final HttpRequest request,
+            final HttpResponse response
+    ) throws IOException {
+        final String body = StaticResourceLoader.load(request.getUri() + ".html");
+        response.setStatus(HttpStatus.OK);
+        response.setHeaders(Map.of(
+                "Content-Type", "text/html;charset=utf-8",
+                "Content-Length", String.valueOf(body.getBytes(StandardCharsets.UTF_8).length)
+        ));
+        response.setBody(body);
 
-        return resource;
+        return response;
+    }
+
+    private HttpResponse doPost(
+            final HttpRequest request,
+            final HttpResponse response
+    ) {
+        try {
+            final String sessionId = login(request);
+            response.redirect("/index.html");
+
+            return response;
+        } catch (IllegalArgumentException e) {
+            response.redirect("/401.html");
+
+            return response;
+        }
     }
 
     // TODO: Service 분리 고려해보기 (Controller 도입 후)
-    private String login(final HttpRequest request) throws IOException {
+    private String login(final HttpRequest request) {
         final Map<String, String> params = request.getBody();
-        try {
-            final User user = InMemoryUserRepository.findByAccount(params.get("account"))
-                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
-            validatePassword(user, params.get("password"));
-            System.out.println("user: " + user);
-        } catch (IllegalArgumentException e) {
-            return responseBuilder.buildStaticResponse(HttpStatus.UNAUTHORIZED, "/401.html");
-        }
+        final User user = InMemoryUserRepository.findByAccount(params.get("account"))
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+        validatePassword(user, params.get("password"));
+        System.out.println("user: " + user);
 
-        return responseBuilder.buildStaticResponse(HttpStatus.FOUND, "/index.html");
+        return UUID.randomUUID().toString();
     }
 
     private void validatePassword(

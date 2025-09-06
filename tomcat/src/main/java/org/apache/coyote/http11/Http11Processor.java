@@ -10,7 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.HttpMethod;
 import org.apache.coyote.HttpRequest;
+import org.apache.coyote.HttpResponse;
 import org.apache.coyote.Processor;
+import org.apache.coyote.ResponseBuilder;
 import org.apache.coyote.handler.Handler;
 import org.apache.coyote.handler.HandlerMapper;
 import org.slf4j.Logger;
@@ -36,25 +38,30 @@ public class Http11Processor implements Runnable, Processor {
     public void process(final Socket connection) {
         try (final var inputStream = connection.getInputStream();
              final var outputStream = connection.getOutputStream()) {
+            final ResponseBuilder responseBuilder = new ResponseBuilder();
 
             final HttpRequest httpRequest = getRequest(inputStream);
-            final String httpResponse = getResponse(httpRequest);
+            final HttpResponse httpResponse = getResponse(httpRequest);
+            final String response = responseBuilder.build(httpResponse);
 
-            outputStream.write(httpResponse.getBytes());
+            outputStream.write(response.getBytes());
             outputStream.flush();
         } catch (IOException | UncheckedServletException e) {
             log.error(e.getMessage(), e);
         }
     }
 
-    private String getResponse(final HttpRequest request) throws IOException {
+    private HttpResponse getResponse(final HttpRequest request) throws IOException {
         final HandlerMapper handlerMapper = HandlerMapper.getInstance();
         final Handler handler = handlerMapper.getHandler(request);
+        final HttpResponse response = new HttpResponse();
         if (handler == null) {
-            return "HTTP/1.1 404 NOT FOUND ";
+            response.redirect("/404.html");
+
+            return response;
         }
 
-        return handler.handle(request);
+        return handler.handle(request, response);
     }
 
     // TODO: 래픽터링 (Request 객체에게 옮길지 / Factory 클래스를 만들지 고민)

@@ -3,7 +3,6 @@ package org.apache.coyote.handler;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.coyote.HttpRequest;
-import org.apache.coyote.ResponseBuilder;
 
 public class HandlerMapper {
 
@@ -18,14 +17,13 @@ public class HandlerMapper {
     }
 
     private HandlerMapper() {
-        final ResponseBuilder responseBuilder = new ResponseBuilder();
         // static resource 우선 매핑
-        handlers.add(new StaticResourceHandler(responseBuilder));
+        handlers.add(new StaticResourceHandler());
 
         // 이외 endpoint 매핑
         handlers.add(new HelloWorldHandler());
-        handlers.add(new LoginHandler(responseBuilder));
-        handlers.add(new RegisterHandler(responseBuilder));
+        handlers.add(new LoginHandler());
+        handlers.add(new RegisterHandler());
     }
 
     public Handler getHandler(final HttpRequest request) {
