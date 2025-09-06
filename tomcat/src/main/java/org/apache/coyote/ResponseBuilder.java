@@ -5,8 +5,9 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.HttpStatus;
 
 public class ResponseBuilder {
@@ -24,14 +25,32 @@ public class ResponseBuilder {
 
             return String.join("\r\n",
                     "HTTP/1.1 " + httpStatus.getStatusCode() + " " + httpStatus.getReasonPhrase(),
-                    "Content-Type: " + getContentType(resourcePath) + ";charset=utf-8",
-                    "Content-Length: " + responseBody.getBytes().length,
+                    createHeaders(httpStatus, resourcePath, responseBody, requestTarget),
                     "",
                     responseBody);
         }
     }
 
     private String getContentType(final String resourcePath) throws IOException {
-        return Files.probeContentType(Paths.get(resourcePath));
+        return Files.probeContentType(Paths.get(resourcePath)) + ";charset=utf-8";
+    }
+
+    public String createHeaders(
+            final HttpStatus httpStatus,
+            final String resourcePath,
+            final String responseBody,
+            final String requestTarget
+    ) throws IOException {
+        final Map<String, String> headers = new LinkedHashMap<>();
+        headers.put("Content-Type", getContentType(resourcePath));
+        headers.put("Content-Length", String.valueOf(responseBody.getBytes(StandardCharsets.UTF_8).length));
+        if (HttpStatus.FOUND.equals(httpStatus)) {
+            headers.put("Location", requestTarget);
+        }
+
+        return headers.keySet()
+                .stream()
+                .map(key -> key + ": " + headers.get(key))
+                .collect(Collectors.joining("\r\n"));
     }
 }
