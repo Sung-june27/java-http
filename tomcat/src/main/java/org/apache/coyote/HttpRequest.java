@@ -2,50 +2,38 @@ package org.apache.coyote;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.HttpCookie;
 import org.apache.HttpMethod;
 
 public class HttpRequest {
 
     private final HttpMethod method;
-    private final String uri;
-    private String body;
+    private final String path;
+    private final Map<String, String> headers;
+    private final HttpCookie cookie;
+    private final String body;
 
     public HttpRequest(
             final HttpMethod method,
-            final String uri
-    ) {
-        this.method = method;
-        this.uri = uri;
-    }
-
-    public HttpRequest(
-            final HttpMethod method,
-            final String uri,
+            final String path,
+            final Map<String, String> headers,
+            final HttpCookie cookie,
             final String body
     ) {
         this.method = method;
-        this.uri = uri;
+        this.path = path;
+        this.headers = headers;
+        this.cookie = cookie;
         this.body = body;
     }
 
-    public String getQueryString() {
-        final int index = uri.indexOf('?');
-        if (index == -1) {
-            return "";
-        }
-
-        return uri.substring(index + 1);
-    }
-
-    public Map<String, String> getParams() {
-        final Map<String, String> params = new HashMap<>();
-        final String[] queries = getQueryString().split("&");
-        for (String query : queries) {
-            final String[] pair = query.split("=");
-            params.put(pair[0], pair[1]);
-        }
-
-        return params;
+    public HttpRequest(
+            final HttpMethod method,
+            final String path,
+            final Map<String, String> headers,
+            final HttpCookie cookie
+    ) {
+        this(method, path, headers, cookie, null);
     }
 
     public Map<String, String> getBody() {
@@ -63,7 +51,7 @@ public class HttpRequest {
         return method;
     }
 
-    public String getUri() {
-        return uri;
+    public String getPath() {
+        return path;
     }
 }

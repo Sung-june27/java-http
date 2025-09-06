@@ -38,7 +38,7 @@ public class RegisterHandler implements Handler {
             final HttpRequest request,
             final HttpResponse response
     ) throws IOException {
-        final String body = StaticResourceLoader.load(request.getUri() + ".html");
+        final String body = StaticResourceLoader.load(request.getPath() + ".html");
         response.setStatus(HttpStatus.OK);
         response.setHeaders(Map.of(
                 "Content-Type", "text/html;charset=utf-8",

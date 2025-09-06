@@ -24,10 +24,10 @@ public class StaticResourceHandler implements Handler {
             final HttpRequest request,
             final HttpResponse response
     ) throws IOException {
-        final String body = StaticResourceLoader.load(request.getUri());
+        final String body = StaticResourceLoader.load(request.getPath());
         response.setStatus(HttpStatus.OK);
         response.setHeaders(Map.of(
-                "Content-Type", getContentType(request.getUri()) + ";charset=utf-8",
+                "Content-Type", getContentType(request.getPath()),
                 "Content-Length", String.valueOf(body.getBytes(StandardCharsets.UTF_8).length)
         ));
         response.setBody(body);

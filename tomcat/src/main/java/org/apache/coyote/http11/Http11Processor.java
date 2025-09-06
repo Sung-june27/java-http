@@ -6,8 +6,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import org.apache.HttpCookie;
 import org.apache.HttpMethod;
 import org.apache.coyote.HttpRequest;
 import org.apache.coyote.HttpResponse;
@@ -51,6 +52,41 @@ public class Http11Processor implements Runnable, Processor {
         }
     }
 
+    private HttpRequest getRequest(final InputStream inputStream) throws IOException {
+        final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+
+        // Start Line (Method Path Protocol)
+        final String startLine = bufferedReader.readLine();
+        final String[] splitStartLine = startLine.split(" ");
+        final HttpMethod method = HttpMethod.valueOf(splitStartLine[0]);
+        final String path = splitStartLine[1];
+
+        // Headers
+        final Map<String, String> headers = new HashMap<>();
+        String line;
+        while ((line = bufferedReader.readLine()) != null && !line.isEmpty()) {
+            final String[] pair = line.split(": ");
+            headers.put(pair[0], pair[1]);
+        }
+
+        // Cookie
+        HttpCookie httpCookie = new HttpCookie();
+        final String cookie = headers.get("Cookie");
+        httpCookie.setCookies(cookie);
+
+        // Request Body
+        final String contentLengthHeader = headers.get("Content-Length");
+        if (contentLengthHeader == null) {
+            return new HttpRequest(method, path, headers, httpCookie);
+        }
+        int contentLength = Integer.parseInt(contentLengthHeader);
+        char[] buffer = new char[contentLength];
+        bufferedReader.read(buffer, 0, contentLength);
+        String body = new String(buffer);
+
+        return new HttpRequest(method, path, headers, httpCookie, body);
+    }
+
     private HttpResponse getResponse(final HttpRequest request) throws IOException {
         final HandlerMapper handlerMapper = HandlerMapper.getInstance();
         final Handler handler = handlerMapper.getHandler(request);
@@ -62,32 +98,5 @@ public class Http11Processor implements Runnable, Processor {
         }
 
         return handler.handle(request, response);
-    }
-
-    // TODO: 래픽터링 (Request 객체에게 옮길지 / Factory 클래스를 만들지 고민)
-    private HttpRequest getRequest(final InputStream inputStream) throws IOException {
-        final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-        final List<String> headers = new ArrayList<>();
-        String line;
-        while ((line = bufferedReader.readLine()) != null && !line.isEmpty()) {
-            headers.add(line);
-        }
-        final String startLine = headers.getFirst();
-        final String[] splitStartLine = startLine.split(" ");
-        final HttpMethod httpMethod = HttpMethod.valueOf(splitStartLine[0]);
-        final String requestUri = splitStartLine[1];
-        final String contentLengthHeader = headers.stream()
-                .filter(str -> str.startsWith("Content-Length"))
-                .findFirst()
-                .orElse(null);
-        if (contentLengthHeader == null) {
-            return new HttpRequest(httpMethod, requestUri);
-        }
-
-        final int contentLength = Integer.parseInt(contentLengthHeader.split(":")[1].trim());
-        final char[] body = new char[contentLength];
-        bufferedReader.read(body, 0, contentLength);
-
-        return new HttpRequest(httpMethod, requestUri, new String(body));
     }
 }

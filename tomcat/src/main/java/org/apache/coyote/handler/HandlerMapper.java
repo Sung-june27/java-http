@@ -28,7 +28,7 @@ public class HandlerMapper {
 
     public Handler getHandler(final HttpRequest request) {
         for (Handler handler : handlers) {
-            if (handler.canHandle(request.getUri())) {
+            if (handler.canHandle(request.getPath())) {
                 return handler;
             }
         }
