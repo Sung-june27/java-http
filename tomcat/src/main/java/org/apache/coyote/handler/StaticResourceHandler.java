@@ -2,6 +2,7 @@ package org.apache.coyote.handler;
 
 import java.io.IOException;
 import org.apache.HttpStatus;
+import org.apache.coyote.HttpRequest;
 import org.apache.coyote.ResponseBuilder;
 
 public class StaticResourceHandler implements Handler {
@@ -20,7 +21,7 @@ public class StaticResourceHandler implements Handler {
     }
 
     @Override
-    public String handle(final String requestUri) throws IOException {
-        return responseBuilder.buildStaticResponse(HttpStatus.OK, requestUri);
+    public String handle(final HttpRequest request) throws IOException {
+        return responseBuilder.buildStaticResponse(HttpStatus.OK, request.getUri());
     }
 }

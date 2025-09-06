@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.HttpStatus;
+import org.apache.coyote.HttpRequest;
 import org.apache.coyote.ResponseBuilder;
 
 public class LoginHandler implements Handler {
@@ -22,22 +23,13 @@ public class LoginHandler implements Handler {
     }
 
     @Override
-    public String handle(final String requestUri) throws IOException {
-        final String queryString = getQueryString(requestUri);
+    public String handle(final HttpRequest request) throws IOException {
+        final String queryString = request.getQueryString();
         if (queryString.isEmpty()) {
-            return responseBuilder.buildStaticResponse(HttpStatus.OK, getResource(requestUri));
+            return responseBuilder.buildStaticResponse(HttpStatus.OK, getResource(request.getUri()));
         }
 
-        return login(queryString);
-    }
-
-    private String getQueryString(final String requestUri) {
-        final int index = requestUri.indexOf('?');
-        if (index == -1) {
-            return "";
-        }
-
-        return requestUri.substring(index + 1);
+        return login(request);
     }
 
     private String getResource(final String resource) {
@@ -49,8 +41,8 @@ public class LoginHandler implements Handler {
     }
 
     // TODO: Service 분리 고려해보기 (Controller 도입 후)
-    private String login(final String queryString) throws IOException {
-        final Map<String, String> params = getParams(queryString);
+    private String login(final HttpRequest request) throws IOException {
+        final Map<String, String> params = request.getParams();
         try {
             final User user = InMemoryUserRepository.findByAccount(params.get("account"))
                     .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
@@ -61,17 +53,6 @@ public class LoginHandler implements Handler {
         }
 
         return responseBuilder.buildStaticResponse(HttpStatus.FOUND, "/index.html");
-    }
-
-    private Map<String, String> getParams(final String queryString) {
-        final Map<String, String> params = new HashMap<>();
-        final String[] queries = queryString.split("&");
-        for (String query : queries) {
-            final String[] pair = query.split("=");
-            params.put(pair[0], pair[1]);
-        }
-
-        return params;
     }
 
     private void validateLogin(

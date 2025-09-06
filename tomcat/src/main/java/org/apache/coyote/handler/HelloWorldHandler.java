@@ -1,5 +1,7 @@
 package org.apache.coyote.handler;
 
+import org.apache.coyote.HttpRequest;
+
 public class HelloWorldHandler implements Handler {
 
     @Override
@@ -8,7 +10,7 @@ public class HelloWorldHandler implements Handler {
     }
 
     @Override
-    public String handle(final String requestUri) {
+    public String handle(final HttpRequest request) {
         final var responseBody = "Hello world!";
 
         return String.join("\r\n",

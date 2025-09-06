@@ -2,6 +2,7 @@ package org.apache.coyote.handler;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.coyote.HttpRequest;
 import org.apache.coyote.ResponseBuilder;
 
 public class HandlerMapper {
@@ -26,9 +27,9 @@ public class HandlerMapper {
         handlers.add(new LoginHandler(responseBuilder));
     }
 
-    public Handler getHandler(final String requestUri) {
+    public Handler getHandler(final HttpRequest request) {
         for (Handler handler : handlers) {
-            if (handler.canHandle(requestUri)) {
+            if (handler.canHandle(request.getUri())) {
                 return handler;
             }
         }
