@@ -18,6 +18,18 @@ public class User {
         this(null, account, password, email);
     }
 
+    public User(
+            final Long id,
+            final User user
+    ) {
+        this(
+                id,
+                user.account,
+                user.password,
+                user.email
+        );
+    }
+
     public boolean checkPassword(String password) {
         return this.password.equals(password);
     }

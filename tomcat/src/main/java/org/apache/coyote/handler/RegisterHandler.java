@@ -1,6 +1,9 @@
 package org.apache.coyote.handler;
 
+import com.techcourse.db.InMemoryUserRepository;
+import com.techcourse.model.User;
 import java.io.IOException;
+import java.util.Map;
 import org.apache.HttpMethod;
 import org.apache.HttpStatus;
 import org.apache.coyote.HttpRequest;
@@ -37,6 +40,13 @@ public class RegisterHandler implements Handler {
     }
 
     private String doPost(final HttpRequest request) throws IOException {
+        final Map<String, String> body = request.getBody();
+        final String account = body.get("account");
+        final String password = body.get("password");
+        final String email = body.get("email");
+        final User user = new User(account, password, email);
+        InMemoryUserRepository.save(user);
+
         return responseBuilder.buildStaticResponse(HttpStatus.OK, "/index.html");
     }
 
