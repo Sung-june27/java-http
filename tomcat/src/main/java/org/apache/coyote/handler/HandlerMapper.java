@@ -25,6 +25,7 @@ public class HandlerMapper {
         // 이외 endpoint 매핑
         handlers.add(new HelloWorldHandler());
         handlers.add(new LoginHandler(responseBuilder));
+        handlers.add(new RegisterHandler(responseBuilder));
     }
 
     public Handler getHandler(final HttpRequest request) {
