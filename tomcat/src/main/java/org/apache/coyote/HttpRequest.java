@@ -8,6 +8,7 @@ public class HttpRequest {
 
     private final HttpMethod method;
     private final String uri;
+    private String body;
 
     public HttpRequest(
             final HttpMethod method,
@@ -15,6 +16,16 @@ public class HttpRequest {
     ) {
         this.method = method;
         this.uri = uri;
+    }
+
+    public HttpRequest(
+            final HttpMethod method,
+            final String uri,
+            final String body
+    ) {
+        this.method = method;
+        this.uri = uri;
+        this.body = body;
     }
 
     public String getQueryString() {
@@ -29,6 +40,17 @@ public class HttpRequest {
     public Map<String, String> getParams() {
         final Map<String, String> params = new HashMap<>();
         final String[] queries = getQueryString().split("&");
+        for (String query : queries) {
+            final String[] pair = query.split("=");
+            params.put(pair[0], pair[1]);
+        }
+
+        return params;
+    }
+
+    public Map<String, String> getBody() {
+        final Map<String, String> params = new HashMap<>();
+        final String[] queries = body.split("&");
         for (String query : queries) {
             final String[] pair = query.split("=");
             params.put(pair[0], pair[1]);

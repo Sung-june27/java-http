@@ -37,8 +37,7 @@ public class Http11Processor implements Runnable, Processor {
         try (final var inputStream = connection.getInputStream();
              final var outputStream = connection.getOutputStream()) {
 
-            final List<String> request = getRequest(inputStream);
-            final HttpRequest httpRequest = getHttpRequest(request);
+            final HttpRequest httpRequest = getRequest(inputStream);
             final String httpResponse = getResponse(httpRequest);
 
             outputStream.write(httpResponse.getBytes());
@@ -58,23 +57,30 @@ public class Http11Processor implements Runnable, Processor {
         return handler.handle(request);
     }
 
-    private HttpRequest getHttpRequest(final List<String> request) {
-        final String startLine = request.getFirst();
+    // TODO: 래픽터링 (Request 객체에게 옮길지 / Factory 클래스를 만들지 고민)
+    private HttpRequest getRequest(final InputStream inputStream) throws IOException {
+        final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+        final List<String> headers = new ArrayList<>();
+        String line;
+        while ((line = bufferedReader.readLine()) != null && !line.isEmpty()) {
+            headers.add(line);
+        }
+        final String startLine = headers.getFirst();
         final String[] splitStartLine = startLine.split(" ");
         final HttpMethod httpMethod = HttpMethod.valueOf(splitStartLine[0]);
         final String requestUri = splitStartLine[1];
-
-        return new HttpRequest(httpMethod, requestUri);
-    }
-
-    private List<String> getRequest(final InputStream inputStream) throws IOException {
-        final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-        final List<String> request = new ArrayList<>();
-        String line;
-        while ((line = bufferedReader.readLine()) != null && !line.isEmpty()) {
-            request.add(line);
+        final String contentLengthHeader = headers.stream()
+                .filter(str -> str.startsWith("Content-Length"))
+                .findFirst()
+                .orElse(null);
+        if (contentLengthHeader == null) {
+            return new HttpRequest(httpMethod, requestUri);
         }
 
-        return request;
+        final int contentLength = Integer.parseInt(contentLengthHeader.split(":")[1].trim());
+        final char[] body = new char[contentLength];
+        bufferedReader.read(body, 0, contentLength);
+
+        return new HttpRequest(httpMethod, requestUri, new String(body));
     }
 }

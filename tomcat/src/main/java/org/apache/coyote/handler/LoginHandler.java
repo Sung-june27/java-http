@@ -3,8 +3,8 @@ package org.apache.coyote.handler;
 import com.techcourse.db.InMemoryUserRepository;
 import com.techcourse.model.User;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
+import org.apache.HttpMethod;
 import org.apache.HttpStatus;
 import org.apache.coyote.HttpRequest;
 import org.apache.coyote.ResponseBuilder;
@@ -24,12 +24,15 @@ public class LoginHandler implements Handler {
 
     @Override
     public String handle(final HttpRequest request) throws IOException {
-        final String queryString = request.getQueryString();
-        if (queryString.isEmpty()) {
+        if (HttpMethod.GET.equals(request.getMethod())) {
             return responseBuilder.buildStaticResponse(HttpStatus.OK, getResource(request.getUri()));
         }
+        if (HttpMethod.POST.equals(request.getMethod())) {
+            return login(request);
+        }
 
-        return login(request);
+        // TODO: 405 처리
+        return "";
     }
 
     private String getResource(final String resource) {
@@ -42,11 +45,11 @@ public class LoginHandler implements Handler {
 
     // TODO: Service 분리 고려해보기 (Controller 도입 후)
     private String login(final HttpRequest request) throws IOException {
-        final Map<String, String> params = request.getParams();
+        final Map<String, String> params = request.getBody();
         try {
             final User user = InMemoryUserRepository.findByAccount(params.get("account"))
                     .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
-            validateLogin(user, params.get("password"));
+            validatePassword(user, params.get("password"));
             System.out.println("user: " + user);
         } catch (IllegalArgumentException e) {
             return responseBuilder.buildStaticResponse(HttpStatus.UNAUTHORIZED, "/401.html");
@@ -55,7 +58,7 @@ public class LoginHandler implements Handler {
         return responseBuilder.buildStaticResponse(HttpStatus.FOUND, "/index.html");
     }
 
-    private void validateLogin(
+    private void validatePassword(
             final User user,
             final String password
     ) {
