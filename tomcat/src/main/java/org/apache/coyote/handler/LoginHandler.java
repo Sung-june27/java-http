@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.UUID;
+import org.apache.HttpCookie;
 import org.apache.HttpMethod;
 import org.apache.HttpStatus;
 import org.apache.coyote.HttpRequest;
@@ -13,6 +14,8 @@ import org.apache.coyote.HttpResponse;
 import org.apache.coyote.StaticResourceLoader;
 
 public class LoginHandler implements Handler {
+
+    private static final String JSESSIONID = "JSESSIONID";
 
     @Override
     public boolean canHandle(final String requestUri) {
@@ -55,8 +58,14 @@ public class LoginHandler implements Handler {
             final HttpResponse response
     ) {
         try {
-            final String sessionId = login(request);
+            login(request);
+            final HttpCookie cookie = request.getCookie();
+            if (!cookie.containsCookie(JSESSIONID)) {
+                final String sessionId = UUID.randomUUID().toString();
+                cookie.setCookie(JSESSIONID, sessionId);
+            }
             response.redirect("/index.html");
+            response.setCookie(cookie);
 
             return response;
         } catch (IllegalArgumentException e) {
@@ -67,14 +76,12 @@ public class LoginHandler implements Handler {
     }
 
     // TODO: Service 분리 고려해보기 (Controller 도입 후)
-    private String login(final HttpRequest request) {
+    private void login(final HttpRequest request) {
         final Map<String, String> params = request.getBody();
         final User user = InMemoryUserRepository.findByAccount(params.get("account"))
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
         validatePassword(user, params.get("password"));
         System.out.println("user: " + user);
-
-        return UUID.randomUUID().toString();
     }
 
     private void validatePassword(

@@ -2,6 +2,7 @@ package org.apache;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class HttpCookie {
 
@@ -21,5 +22,17 @@ public class HttpCookie {
 
     public void setCookie(String name, String value) {
         cookies.put(name, value);
+    }
+
+    public boolean containsCookie(String name) {
+        return cookies.containsKey(name);
+    }
+
+    @Override
+    public String toString() {
+        return cookies.keySet()
+                .stream()
+                .map(key -> key + "=" + cookies.get(key))
+                .collect(Collectors.joining("; "));
     }
 }

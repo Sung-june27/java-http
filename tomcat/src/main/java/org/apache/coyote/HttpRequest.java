@@ -54,4 +54,8 @@ public class HttpRequest {
     public String getPath() {
         return path;
     }
+
+    public HttpCookie getCookie() {
+        return cookie;
+    }
 }
