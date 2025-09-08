@@ -1,4 +1,4 @@
-package org.apache.catalina.handler;
+package org.apache.catalina.handler.util;
 
 import java.io.IOException;
 import java.io.InputStream;

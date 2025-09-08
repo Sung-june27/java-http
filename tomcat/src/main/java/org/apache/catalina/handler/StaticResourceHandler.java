@@ -5,6 +5,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Map;
+import org.apache.catalina.handler.util.ContentTypeExtractor;
+import org.apache.catalina.handler.util.StaticResourceLoader;
 import org.apache.coyote.http11.HttpStatus;
 import org.apache.coyote.http11.request.HttpRequest;
 import org.apache.coyote.http11.response.HttpResponse;
@@ -27,17 +29,11 @@ public class StaticResourceHandler implements Handler {
         final String body = StaticResourceLoader.load(request.getPath());
         response.setStatus(HttpStatus.OK);
         response.setHeaders(Map.of(
-                "Content-Type", getContentType(request.getPath()),
+                "Content-Type", ContentTypeExtractor.extract(request.getPath()),
                 "Content-Length", String.valueOf(body.getBytes(StandardCharsets.UTF_8).length)
         ));
         response.setBody(body);
 
         return response;
-    }
-
-    private String getContentType(final String uri) throws IOException {
-        final String resourcePath = "static" + uri;
-
-        return Files.probeContentType(Paths.get(resourcePath)) + ";charset=utf-8";
     }
 }

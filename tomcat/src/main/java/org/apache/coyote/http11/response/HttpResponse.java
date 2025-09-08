@@ -17,11 +17,7 @@ public class HttpResponse {
 
     public void redirect(final String location) {
         this.status = HttpStatus.FOUND;
-        this.headers.putAll(Map.of(
-                "Content-Type", "text/html;charset=utf-8",
-                "Content-Length", String.valueOf(0),
-                "Location", location
-        ));
+        this.headers.put("Location", location);
     }
 
     public void setStatus(final HttpStatus status) {
