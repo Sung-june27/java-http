@@ -1,4 +1,4 @@
-package org.apache.coyote.handler;
+package org.apache.catalina.handler;
 
 import java.util.ArrayList;
 import java.util.List;

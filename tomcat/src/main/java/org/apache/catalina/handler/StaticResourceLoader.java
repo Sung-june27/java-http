@@ -1,4 +1,4 @@
-package org.apache.coyote.handler;
+package org.apache.catalina.handler;
 
 import java.io.IOException;
 import java.io.InputStream;
