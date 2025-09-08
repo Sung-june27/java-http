@@ -2,8 +2,6 @@ package org.apache.catalina.handler;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Map;
 import org.apache.catalina.handler.util.ContentTypeExtractor;
 import org.apache.catalina.handler.util.StaticResourceLoader;
@@ -27,6 +25,11 @@ public class StaticResourceHandler implements Handler {
             final HttpResponse response
     ) throws IOException {
         final String body = StaticResourceLoader.load(request.getPath());
+        if (body.isBlank()) {
+            response.redirect("/404.html");
+
+            return response;
+        }
         response.setStatus(HttpStatus.OK);
         response.setHeaders(Map.of(
                 "Content-Type", ContentTypeExtractor.extract(request.getPath()),
