@@ -36,12 +36,12 @@ public class LoginHandler implements Handler {
         return response;
     }
 
-    private static HttpResponse doGet(
+    private HttpResponse doGet(
             final HttpRequest request,
             final HttpResponse response
     ) throws IOException {
         // Session이 존재한다면, redirect
-        if (request.getSession(false) != null) {
+        if (alreadyLogin(request)) {
             response.redirect("/index.html");
 
             return response;
@@ -63,7 +63,7 @@ public class LoginHandler implements Handler {
     ) {
         try {
             final User user = login(request);
-            
+
             // 로그인에 성공한다면, Session 설정
             setSession(request, response, user);
             response.redirect("/index.html");
@@ -74,6 +74,12 @@ public class LoginHandler implements Handler {
 
             return response;
         }
+    }
+
+    private boolean alreadyLogin(final HttpRequest request) {
+        final Session session = request.getSession(false);
+
+        return session != null && session.getAttribute("user") != null;
     }
 
     // TODO: Service 분리 고려해보기 (Controller 도입 후)

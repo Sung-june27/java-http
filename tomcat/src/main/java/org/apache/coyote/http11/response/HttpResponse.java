@@ -10,7 +10,7 @@ public class HttpResponse {
     private HttpStatus status = HttpStatus.OK;
     private Map<String, String> headers = new HashMap<>();
     private HttpCookie cookie;
-    private String body = "";
+    private String body;
 
     public HttpResponse() {
     }
