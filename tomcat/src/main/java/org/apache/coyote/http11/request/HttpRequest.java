@@ -3,6 +3,8 @@ package org.apache.coyote.http11.request;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import org.apache.catalina.Manager;
+import org.apache.catalina.session.SessionManager;
 import org.apache.coyote.http11.HttpMethod;
 import org.apache.catalina.session.Session;
 
@@ -55,9 +57,12 @@ public class HttpRequest {
     }
 
     public Session getSession(final boolean create) {
+        // Session이 존재하지 않는다면, 생성 및 등록
         if (this.session == null && create) {
             final String id = UUID.randomUUID().toString();
             this.session = new Session(id);
+            final Manager manager = SessionManager.getInstance();
+            manager.add(this.session);
         }
 
         return this.session;

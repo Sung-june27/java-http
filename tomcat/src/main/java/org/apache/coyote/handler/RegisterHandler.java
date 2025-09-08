@@ -29,7 +29,7 @@ public class RegisterHandler implements Handler {
             return doPost(request, response);
         }
 
-        // TODO: 405 처리
+        // TODO: 405 처리 (Controller 이후)
         return response;
     }
 

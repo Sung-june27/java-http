@@ -5,18 +5,14 @@ import com.techcourse.model.User;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import org.apache.coyote.http11.request.HttpCookie;
+import org.apache.catalina.session.Session;
 import org.apache.coyote.http11.HttpMethod;
 import org.apache.coyote.http11.HttpStatus;
-import org.apache.catalina.Manager;
-import org.apache.catalina.session.Session;
-import org.apache.catalina.session.SessionManager;
+import org.apache.coyote.http11.request.HttpCookie;
 import org.apache.coyote.http11.request.HttpRequest;
 import org.apache.coyote.http11.response.HttpResponse;
 
 public class LoginHandler implements Handler {
-
-    private static final String JSESSIONID = "JSESSIONID";
 
     @Override
     public boolean canHandle(final String requestUri) {
@@ -35,7 +31,7 @@ public class LoginHandler implements Handler {
             return doPost(request, response);
         }
 
-        // TODO: 405 처리
+        // TODO: 405 처리 (Controller 이후)
         return response;
     }
 
@@ -43,6 +39,7 @@ public class LoginHandler implements Handler {
             final HttpRequest request,
             final HttpResponse response
     ) throws IOException {
+        // Session이 존재한다면, redirect
         if (request.getSession(false) != null) {
             response.redirect("/index.html");
 
@@ -64,15 +61,11 @@ public class LoginHandler implements Handler {
             final HttpResponse response
     ) {
         try {
-            final Manager manager = SessionManager.getInstance();
             final User user = login(request);
-            final HttpCookie cookie = request.getCookie();
-            final Session session = request.getSession(true);
-            session.setAttribute("user", user);
-            cookie.setCookie(JSESSIONID, session.getId());
-            manager.add(session);
+            
+            // 로그인에 성공한다면, Session 설정
+            setSession(request, response, user);
             response.redirect("/index.html");
-            response.setCookie(cookie);
 
             return response;
         } catch (IllegalArgumentException e) {
@@ -92,7 +85,6 @@ public class LoginHandler implements Handler {
 
         return user;
     }
-
     private void validatePassword(
             final User user,
             final String password
@@ -100,5 +92,17 @@ public class LoginHandler implements Handler {
         if (!user.checkPassword(password)) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
+    }
+
+    private void setSession(
+            final HttpRequest request,
+            final HttpResponse response,
+            final User user
+    ) {
+        final HttpCookie cookie = request.getCookie();
+        final Session session = request.getSession(true);
+        session.setAttribute("user", user);
+        cookie.setCookie("JSESSIONID", session.getId());
+        response.setCookie(cookie);
     }
 }
