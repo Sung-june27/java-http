@@ -1,6 +1,7 @@
 package org.apache.coyote.http11.request;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.apache.catalina.Manager;
@@ -12,7 +13,7 @@ public class HttpRequest {
 
     private final HttpMethod method;
     private final String path;
-    private final Map<String, String> headers;
+    private final Map<String, List<String>> headers;
     private final HttpCookie cookie;
     private final String body;
     private Session session;
@@ -20,7 +21,7 @@ public class HttpRequest {
     public HttpRequest(
             final HttpMethod method,
             final String path,
-            final Map<String, String> headers,
+            final Map<String, List<String>> headers,
             final HttpCookie cookie,
             final String body,
             final Session session
