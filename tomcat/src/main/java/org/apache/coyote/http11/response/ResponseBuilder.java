@@ -1,12 +1,12 @@
-package org.apache.coyote;
+package org.apache.coyote.http11.response;
 
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.apache.HttpStatus;
+import org.apache.coyote.http11.HttpStatus;
 
 public class ResponseBuilder {
 
-    public String build(final HttpResponse response) {
+    public static String build(final HttpResponse response) {
         final HttpStatus httpStatus = response.getStatus();
 
         return String.join("\r\n",
@@ -16,7 +16,7 @@ public class ResponseBuilder {
                 response.getBody());
     }
 
-    private String parseHeaders(final HttpResponse response) {
+    private static String parseHeaders(final HttpResponse response) {
         final Map<String, String> headers = response.getHeaders();
 
         return headers.keySet()

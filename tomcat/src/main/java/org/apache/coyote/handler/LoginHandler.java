@@ -5,15 +5,14 @@ import com.techcourse.model.User;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import org.apache.HttpCookie;
-import org.apache.HttpMethod;
-import org.apache.HttpStatus;
+import org.apache.coyote.http11.request.HttpCookie;
+import org.apache.coyote.http11.HttpMethod;
+import org.apache.coyote.http11.HttpStatus;
 import org.apache.catalina.Manager;
 import org.apache.catalina.session.Session;
 import org.apache.catalina.session.SessionManager;
-import org.apache.coyote.HttpRequest;
-import org.apache.coyote.HttpResponse;
-import org.apache.coyote.StaticResourceLoader;
+import org.apache.coyote.http11.request.HttpRequest;
+import org.apache.coyote.http11.response.HttpResponse;
 
 public class LoginHandler implements Handler {
 
@@ -46,6 +45,7 @@ public class LoginHandler implements Handler {
     ) throws IOException {
         if (request.getSession(false) != null) {
             response.redirect("/index.html");
+
             return response;
         }
         final String body = StaticResourceLoader.load(request.getPath() + ".html");

@@ -2,7 +2,7 @@ package org.apache.coyote.handler;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.coyote.HttpRequest;
+import org.apache.coyote.http11.request.HttpRequest;
 
 public class HandlerMapper {
 

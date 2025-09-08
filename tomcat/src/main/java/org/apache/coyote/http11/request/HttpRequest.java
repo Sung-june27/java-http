@@ -1,10 +1,9 @@
-package org.apache.coyote;
+package org.apache.coyote.http11.request;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import org.apache.HttpCookie;
-import org.apache.HttpMethod;
+import org.apache.coyote.http11.HttpMethod;
 import org.apache.catalina.session.Session;
 
 public class HttpRequest {

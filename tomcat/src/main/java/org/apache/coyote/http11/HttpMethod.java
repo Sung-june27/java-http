@@ -1,6 +1,4 @@
-package org.apache;
-
-import java.util.Arrays;
+package org.apache.coyote.http11;
 
 public enum HttpMethod {
 

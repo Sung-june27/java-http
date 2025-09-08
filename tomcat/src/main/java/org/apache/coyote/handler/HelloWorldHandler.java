@@ -2,9 +2,9 @@ package org.apache.coyote.handler;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import org.apache.HttpStatus;
-import org.apache.coyote.HttpRequest;
-import org.apache.coyote.HttpResponse;
+import org.apache.coyote.http11.HttpStatus;
+import org.apache.coyote.http11.request.HttpRequest;
+import org.apache.coyote.http11.response.HttpResponse;
 
 public class HelloWorldHandler implements Handler {
 

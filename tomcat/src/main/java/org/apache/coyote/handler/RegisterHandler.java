@@ -5,11 +5,10 @@ import com.techcourse.model.User;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import org.apache.HttpMethod;
-import org.apache.HttpStatus;
-import org.apache.coyote.HttpRequest;
-import org.apache.coyote.HttpResponse;
-import org.apache.coyote.StaticResourceLoader;
+import org.apache.coyote.http11.HttpMethod;
+import org.apache.coyote.http11.HttpStatus;
+import org.apache.coyote.http11.request.HttpRequest;
+import org.apache.coyote.http11.response.HttpResponse;
 
 public class RegisterHandler implements Handler {
 

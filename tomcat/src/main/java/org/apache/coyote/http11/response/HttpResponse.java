@@ -1,9 +1,9 @@
-package org.apache.coyote;
+package org.apache.coyote.http11.response;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.HttpCookie;
-import org.apache.HttpStatus;
+import org.apache.coyote.http11.HttpStatus;
+import org.apache.coyote.http11.request.HttpCookie;
 
 public class HttpResponse {
 
