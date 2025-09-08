@@ -1,5 +1,6 @@
 package org.apache.coyote.http11.request;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -20,7 +21,7 @@ public class HttpCookie {
     }
 
     public Map<String, String> getCookies() {
-        return cookies;
+        return Collections.unmodifiableMap(cookies);
     }
 
     @Override
