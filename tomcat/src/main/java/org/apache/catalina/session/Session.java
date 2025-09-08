@@ -2,6 +2,7 @@ package org.apache.catalina.session;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.catalina.Manager;
 
 public class Session {
 
@@ -29,6 +30,8 @@ public class Session {
     }
 
     public void invalidate() {
+        final Manager manager = SessionManager.getInstance();
+        manager.remove(id);
         values.clear();
     }
 }
