@@ -25,10 +25,10 @@ public class LoginHandler implements Handler {
             final HttpRequest request,
             final HttpResponse response
     ) throws IOException {
-        if (HttpMethod.GET.equals(request.getMethod())) {
+        if (HttpMethod.GET == request.getMethod()) {
             return doGet(request, response);
         }
-        if (HttpMethod.POST.equals(request.getMethod())) {
+        if (HttpMethod.POST == request.getMethod()) {
             return doPost(request, response);
         }
 
