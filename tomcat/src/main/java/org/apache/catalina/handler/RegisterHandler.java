@@ -59,7 +59,7 @@ public class RegisterHandler implements Handler {
         return response;
     }
 
-    private static void register(final HttpRequest request) {
+    private void register(final HttpRequest request) {
         final Map<String, String> body = request.getBody();
         final String account = body.get("account");
         final String password = body.get("password");

@@ -1,6 +1,5 @@
 package org.apache.catalina.handler;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.apache.coyote.http11.request.HttpRequest;
 
@@ -10,20 +9,18 @@ public class HandlerMapper {
         private static final HandlerMapper INSTANCE = new HandlerMapper();
     }
 
-    private final List<Handler> handlers = new ArrayList<>();
+    private final List<Handler> handlers = List.of(
+            new StaticResourceHandler(),
+            new HelloWorldHandler(),
+            new LoginHandler(),
+            new RegisterHandler()
+    );
 
     public static HandlerMapper getInstance() {
         return HandlerMapperHolder.INSTANCE;
     }
 
     private HandlerMapper() {
-        // static resource 우선 매핑
-        handlers.add(new StaticResourceHandler());
-
-        // 이외 endpoint 매핑
-        handlers.add(new HelloWorldHandler());
-        handlers.add(new LoginHandler());
-        handlers.add(new RegisterHandler());
     }
 
     public Handler getHandler(final HttpRequest request) {
