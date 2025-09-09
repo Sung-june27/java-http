@@ -5,14 +5,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import org.apache.coyote.http11.HttpMethod;
 import org.apache.catalina.Manager;
 import org.apache.catalina.session.Session;
 import org.apache.catalina.session.SessionManager;
+import org.apache.coyote.http11.HttpMethod;
 
 public class HttpRequestBuilder {
 
@@ -26,7 +24,7 @@ public class HttpRequestBuilder {
         final String path = splitStartLine[1];
 
         // Headers
-        final Map<String, List<String>> headers = parseHeaders(bufferedReader);
+        final Map<String, String> headers = parseHeaders(bufferedReader);
         final HttpCookie httpCookie = parseCookie(headers);
         final Session session = parseSession(httpCookie);
         final String body = parseBody(bufferedReader, headers);
@@ -34,24 +32,26 @@ public class HttpRequestBuilder {
         return new HttpRequest(method, path, headers, httpCookie, body, session);
     }
 
-    private static Map<String, List<String>> parseHeaders(final BufferedReader bufferedReader) throws IOException {
-        final Map<String, List<String>> headers = new HashMap<>();
+    private static Map<String, String> parseHeaders(final BufferedReader bufferedReader) throws IOException {
+        final Map<String, String> headers = new HashMap<>();
         String line;
         while ((line = bufferedReader.readLine()) != null && !line.isEmpty()) {
             final String[] pair = line.split(": ");
             final String key = pair[0];
             final String value = pair[1];
-            final List<String> values = headers.getOrDefault(key, new ArrayList<>());
-            values.add(value);
-            headers.put(key, values);
+            headers.put(key, value);
         }
 
         return headers;
     }
 
-    private static HttpCookie parseCookie(final Map<String, List<String>> headers) {
+    private static HttpCookie parseCookie(final Map<String, String> headers) {
+        final String value = headers.get("Cookie");
+        if (value == null) {
+            return null;
+        }
         final HttpCookie httpCookie = new HttpCookie();
-        final List<String> cookies = headers.get("Cookie");
+        final String[] cookies = value.split("; ");
         for (String cookie : cookies) {
             final String[] pair = cookie.split("=");
             httpCookie.setCookie(pair[0], pair[1]);
@@ -72,9 +72,9 @@ public class HttpRequestBuilder {
 
     private static String parseBody(
             final BufferedReader bufferedReader,
-            final Map<String, List<String>> headers
+            final Map<String, String> headers
     ) throws IOException {
-        final String contentLengthHeader = headers.get("Content-Length").getFirst();
+        final String contentLengthHeader = headers.get("Content-Length");
         if (contentLengthHeader == null) {
             return null;
         }

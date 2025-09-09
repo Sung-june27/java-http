@@ -19,7 +19,7 @@ public class ResponseBuilder {
         if (!headerLines.isEmpty()) {
             sb.append(headerLines).append(CRLF);
         }
-        if (!body.isBlank()) {
+        if (body != null) {
             sb.append(CRLF).append(body);
         }
 
