@@ -47,10 +47,10 @@ public class HttpRequestBuilder {
 
     private static HttpCookie parseCookie(final Map<String, String> headers) {
         final String value = headers.get("Cookie");
-        if (value == null) {
-            return null;
-        }
         final HttpCookie httpCookie = new HttpCookie();
+        if (value == null) {
+            return httpCookie;
+        }
         final String[] cookies = value.split("; ");
         for (String cookie : cookies) {
             final String[] pair = cookie.split("=");
