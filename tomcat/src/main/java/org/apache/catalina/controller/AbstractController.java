@@ -22,10 +22,14 @@ public abstract class AbstractController implements Controller {
     protected void doPost(
             HttpRequest request,
             HttpResponse response
-    ) throws Exception { /* NOOP */ }
+    ) throws Exception {
+        response.redirect("/405.html");
+    }
 
     protected void doGet(
             HttpRequest request,
             HttpResponse response
-    ) throws Exception { /* NOOP */ }
+    ) throws Exception {
+        response.redirect("/405.html");
+    }
 }

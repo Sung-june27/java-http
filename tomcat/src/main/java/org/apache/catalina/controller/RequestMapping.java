@@ -1,5 +1,9 @@
 package org.apache.catalina.controller;
 
+import com.techcourse.controller.HelloWorldController;
+import com.techcourse.controller.LoginController;
+import com.techcourse.controller.RegisterController;
+import com.techcourse.controller.StaticResourceController;
 import java.util.List;
 import org.apache.coyote.http11.request.HttpRequest;
 
