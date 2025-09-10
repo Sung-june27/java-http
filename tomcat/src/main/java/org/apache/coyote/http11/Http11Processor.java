@@ -9,7 +9,6 @@ import org.apache.coyote.Processor;
 import org.apache.coyote.http11.request.HttpRequest;
 import org.apache.coyote.http11.request.HttpRequestBuilder;
 import org.apache.coyote.http11.response.HttpResponse;
-import org.apache.coyote.http11.response.ResponseBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,10 +35,7 @@ public class Http11Processor implements Runnable, Processor {
 
             final HttpRequest httpRequest = HttpRequestBuilder.build(inputStream);
             final HttpResponse httpResponse = getHttpResponse(httpRequest);
-            final String response = ResponseBuilder.build(httpResponse);
-
-            outputStream.write(response.getBytes());
-            outputStream.flush();
+            httpResponse.printResponse(outputStream);
         } catch (IOException | UncheckedServletException e) {
             log.error(e.getMessage(), e);
         }

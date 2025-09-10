@@ -1,11 +1,16 @@
 package org.apache.coyote.http11.response;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.coyote.http11.HttpStatus;
 import org.apache.coyote.http11.request.HttpCookie;
 
 public class HttpResponse {
+
+    private static final String CRLF = "\r\n";
 
     private HttpStatus status = HttpStatus.OK;
     private Map<String, String> headers = new HashMap<>();
@@ -52,5 +57,39 @@ public class HttpResponse {
 
     public String getBody() {
         return body;
+    }
+
+    public void printResponse(final OutputStream outputStream) throws IOException {
+        outputStream.write(build().getBytes());
+        outputStream.flush();
+    }
+
+    private String build() {
+        final String statusLine = "HTTP/1.1 " + this.status.getCode() + " " + this.status.getMessage();
+        final String headerLines = parseHeaders();
+        final String body = getBody();
+
+        // response 연결
+        final StringBuilder sb = new StringBuilder();
+        sb.append(statusLine).append(CRLF);
+        if (!headerLines.isEmpty()) {
+            sb.append(headerLines).append(CRLF);
+        }
+        if (this.body != null) {
+            sb.append(CRLF).append(body);
+        }
+
+        return sb.toString();
+    }
+
+    private String parseHeaders() {
+        if (this.headers == null || this.headers.isEmpty()) {
+            return "";
+        }
+
+        return headers.entrySet()
+                .stream()
+                .map(header -> header.getKey() + ": " + header.getValue())
+                .collect(Collectors.joining(CRLF));
     }
 }
