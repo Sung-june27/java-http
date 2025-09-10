@@ -1,20 +1,21 @@
-package org.apache.catalina.handler;
+package com.techcourse.controller;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import org.apache.catalina.handler.AbstractController;
 import org.apache.coyote.http11.HttpStatus;
 import org.apache.coyote.http11.request.HttpRequest;
 import org.apache.coyote.http11.response.HttpResponse;
 
-public class HelloWorldHandler implements Handler {
+public class HelloWorldController extends AbstractController {
 
     @Override
-    public boolean canHandle(final String requestUri) {
-        return requestUri.equals("/");
+    public boolean canHandle(final String path) {
+        return path.equals("/");
     }
 
     @Override
-    public HttpResponse handle(
+    protected void doGet(
             final HttpRequest request,
             final HttpResponse response
     ) {
@@ -25,7 +26,5 @@ public class HelloWorldHandler implements Handler {
                 "Content-Length", String.valueOf(responseBody.getBytes(StandardCharsets.UTF_8).length)
         ));
         response.setBody(responseBody);
-
-        return response;
     }
 }
