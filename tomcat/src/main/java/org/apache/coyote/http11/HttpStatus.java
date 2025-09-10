@@ -7,22 +7,22 @@ public enum HttpStatus {
     NOT_FOUND(404, "NOT FOUND"),
     ;
 
-    private final int statusCode;
-    private final String reasonPhrase;
+    private final int code;
+    private final String message;
 
     HttpStatus(
-            final int statusCode,
-            final String reasonPhrase
+            final int code,
+            final String message
     ) {
-        this.statusCode = statusCode;
-        this.reasonPhrase = reasonPhrase;
+        this.code = code;
+        this.message = message;
     }
 
-    public int getStatusCode() {
-        return statusCode;
+    public int getCode() {
+        return code;
     }
 
-    public String getReasonPhrase() {
-        return reasonPhrase;
+    public String getMessage() {
+        return message;
     }
 }

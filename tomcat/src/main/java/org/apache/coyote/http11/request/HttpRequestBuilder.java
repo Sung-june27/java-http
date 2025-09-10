@@ -17,9 +17,9 @@ public class HttpRequestBuilder {
     public static HttpRequest build(final InputStream inputStream) throws IOException {
         final BufferedReader bufferedReader = new BufferedReader(
                 new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-        // Start Line (Method Path Protocol)
-        final String startLine = bufferedReader.readLine();
-        final String[] splitStartLine = startLine.split(" ");
+        // Request Line (Method Path Protocol)
+        final String requestLine = bufferedReader.readLine();
+        final String[] splitStartLine = requestLine.split(" ");
         final HttpMethod method = HttpMethod.valueOf(splitStartLine[0]);
         final String path = splitStartLine[1];
 

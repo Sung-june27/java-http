@@ -9,13 +9,13 @@ public class ResponseBuilder {
     private static final String CRLF = "\r\n";
 
     public static String build(final HttpResponse response) {
-        final String startLine = parseStartLine(response);
+        final String statusLine = statusLine(response);
         final String headerLines = parseHeaders(response);
         final String body = response.getBody();
 
         // response 연결
         final StringBuilder sb = new StringBuilder();
-        sb.append(startLine).append(CRLF);
+        sb.append(statusLine).append(CRLF);
         if (!headerLines.isEmpty()) {
             sb.append(headerLines).append(CRLF);
         }
@@ -26,10 +26,10 @@ public class ResponseBuilder {
         return sb.toString();
     }
 
-    private static String parseStartLine(final HttpResponse response) {
+    private static String statusLine(final HttpResponse response) {
         final HttpStatus status = response.getStatus();
 
-        return "HTTP/1.1 " + status.getStatusCode() + " " + status.getReasonPhrase();
+        return "HTTP/1.1 " + status.getCode() + " " + status.getMessage();
     }
 
     private static String parseHeaders(final HttpResponse response) {
