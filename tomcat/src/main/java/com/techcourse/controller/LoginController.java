@@ -1,5 +1,6 @@
 package com.techcourse.controller;
 
+import com.techcourse.dto.LoginRequest;
 import com.techcourse.model.User;
 import com.techcourse.service.LoginService;
 import java.io.IOException;
@@ -52,7 +53,8 @@ public class LoginController extends AbstractController {
             final HttpResponse response
     ) {
         try {
-            final User user = loginService.login(request);
+            final LoginRequest loginRequest = LoginRequest.from(request);
+            final User user = loginService.login(loginRequest);
 
             // 로그인에 성공한다면, Session 설정
             setSession(request, response, user);

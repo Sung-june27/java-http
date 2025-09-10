@@ -1,17 +1,15 @@
 package com.techcourse.service;
 
 import com.techcourse.db.InMemoryUserRepository;
+import com.techcourse.dto.LoginRequest;
 import com.techcourse.model.User;
-import java.util.Map;
-import org.apache.coyote.http11.request.HttpRequest;
 
 public class LoginService {
 
-    public User login(final HttpRequest request) {
-        final Map<String, String> params = request.getBody();
-        final User user = InMemoryUserRepository.findByAccount(params.get("account"))
+    public User login(final LoginRequest request) {
+        final User user = InMemoryUserRepository.findByAccount(request.account())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
-        validatePassword(user, params.get("password"));
+        validatePassword(user, request.password());
         System.out.println("user: " + user);
 
         return user;

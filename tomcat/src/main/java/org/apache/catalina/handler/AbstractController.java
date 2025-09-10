@@ -17,6 +17,8 @@ public abstract class AbstractController implements Controller {
         if (HttpMethod.POST == request.getMethod()) {
             doPost(request, response);
         }
+
+        response.redirect("/405.html");
     }
 
     protected void doPost(

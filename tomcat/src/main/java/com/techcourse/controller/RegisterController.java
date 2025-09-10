@@ -1,7 +1,7 @@
 package com.techcourse.controller;
 
-import com.techcourse.db.InMemoryUserRepository;
-import com.techcourse.model.User;
+import com.techcourse.dto.RegisterRequest;
+import com.techcourse.service.RegisterService;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -12,6 +12,12 @@ import org.apache.coyote.http11.request.HttpRequest;
 import org.apache.coyote.http11.response.HttpResponse;
 
 public class RegisterController extends AbstractController {
+
+    private final RegisterService registerService;
+
+    public RegisterController(RegisterService registerService) {
+        this.registerService = registerService;
+    }
 
     @Override
     public boolean canHandle(final String path) {
@@ -37,16 +43,8 @@ public class RegisterController extends AbstractController {
             final HttpRequest request,
             final HttpResponse response
     ) {
-        register(request);
+        final RegisterRequest registerRequest = RegisterRequest.from(request);
+        registerService.register(registerRequest);
         response.redirect("/index.html");
-    }
-
-    private void register(final HttpRequest request) {
-        final Map<String, String> body = request.getBody();
-        final String account = body.get("account");
-        final String password = body.get("password");
-        final String email = body.get("email");
-        final User user = new User(account, password, email);
-        InMemoryUserRepository.save(user);
     }
 }
