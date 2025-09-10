@@ -1,7 +1,7 @@
 package com.techcourse.controller;
 
-import com.techcourse.db.InMemoryUserRepository;
 import com.techcourse.model.User;
+import com.techcourse.service.LoginService;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -14,6 +14,12 @@ import org.apache.coyote.http11.request.HttpRequest;
 import org.apache.coyote.http11.response.HttpResponse;
 
 public class LoginController extends AbstractController {
+
+    private final LoginService loginService;
+
+    public LoginController(final LoginService loginService) {
+        this.loginService = loginService;
+    }
 
     @Override
     public boolean canHandle(final String path) {
@@ -46,7 +52,7 @@ public class LoginController extends AbstractController {
             final HttpResponse response
     ) {
         try {
-            final User user = login(request);
+            final User user = loginService.login(request);
 
             // 로그인에 성공한다면, Session 설정
             setSession(request, response, user);
@@ -60,26 +66,6 @@ public class LoginController extends AbstractController {
         final Session session = request.getSession(false);
 
         return session != null && session.getAttribute("user") != null;
-    }
-
-    // TODO: Service 분리 고려해보기 (Controller 도입 후)
-    private User login(final HttpRequest request) {
-        final Map<String, String> params = request.getBody();
-        final User user = InMemoryUserRepository.findByAccount(params.get("account"))
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
-        validatePassword(user, params.get("password"));
-        System.out.println("user: " + user);
-
-        return user;
-    }
-
-    private void validatePassword(
-            final User user,
-            final String password
-    ) {
-        if (!user.checkPassword(password)) {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
-        }
     }
 
     private void setSession(
