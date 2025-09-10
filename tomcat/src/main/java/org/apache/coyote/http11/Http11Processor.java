@@ -1,16 +1,15 @@
 package org.apache.coyote.http11;
 
 import com.techcourse.exception.UncheckedServletException;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.coyote.Processor;
-import org.apache.coyote.handler.AbstractHandler;
-import org.apache.coyote.handler.HandlerMapper;
+import org.apache.catalina.handler.Handler;
+import org.apache.catalina.handler.HandlerMapper;
+import org.apache.coyote.http11.request.HttpRequest;
+import org.apache.coyote.http11.request.HttpRequestBuilder;
+import org.apache.coyote.http11.response.HttpResponse;
+import org.apache.coyote.http11.response.ResponseBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,9 +34,9 @@ public class Http11Processor implements Runnable, Processor {
         try (final var inputStream = connection.getInputStream();
              final var outputStream = connection.getOutputStream()) {
 
-            final List<String> request = getRequest(inputStream);
-            final String requestUri = getRequestUri(request);
-            final String response = getResponse(requestUri);
+            final HttpRequest httpRequest = HttpRequestBuilder.build(inputStream);
+            final HttpResponse httpResponse = getHttpResponse(httpRequest);
+            final String response = ResponseBuilder.build(httpResponse);
 
             outputStream.write(response.getBytes());
             outputStream.flush();
@@ -46,31 +45,16 @@ public class Http11Processor implements Runnable, Processor {
         }
     }
 
-    private List<String> getRequest(final InputStream inputStream) throws IOException {
-        final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-        final List<String> request = new ArrayList<>();
-        String line;
-        while (!"".equals(line = bufferedReader.readLine())) {
-            request.add(line);
-        }
-
-        return request;
-    }
-
-    private String getRequestUri(final List<String> request) {
-        final String startLine = request.getFirst();
-        final String[] splitStartLine = startLine.split(" ");
-
-        return splitStartLine[1];
-    }
-
-    public String getResponse(final String requestUri) throws IOException {
+    private HttpResponse getHttpResponse(final HttpRequest request) throws IOException {
         final HandlerMapper handlerMapper = HandlerMapper.getInstance();
-        final AbstractHandler handler = handlerMapper.getHandler(requestUri);
+        final Handler handler = handlerMapper.getHandler(request);
+        final HttpResponse response = new HttpResponse();
         if (handler == null) {
-            return "HTTP/1.1 404 NOT FOUND ";
+            response.redirect("/404.html");
+
+            return response;
         }
 
-        return handler.handle(requestUri);
+        return handler.handle(request, response);
     }
 }
