@@ -3,9 +3,9 @@ package org.apache.coyote.http11;
 import com.techcourse.exception.UncheckedServletException;
 import java.io.IOException;
 import java.net.Socket;
+import org.apache.catalina.controller.Controller;
+import org.apache.catalina.controller.RequestMapping;
 import org.apache.coyote.Processor;
-import org.apache.catalina.handler.Handler;
-import org.apache.catalina.handler.HandlerMapper;
 import org.apache.coyote.http11.request.HttpRequest;
 import org.apache.coyote.http11.request.HttpRequestBuilder;
 import org.apache.coyote.http11.response.HttpResponse;
@@ -45,16 +45,21 @@ public class Http11Processor implements Runnable, Processor {
         }
     }
 
-    private HttpResponse getHttpResponse(final HttpRequest request) throws IOException {
-        final HandlerMapper handlerMapper = HandlerMapper.getInstance();
-        final Handler handler = handlerMapper.getHandler(request);
+    private HttpResponse getHttpResponse(final HttpRequest request) {
+        final RequestMapping requestMapping = RequestMapping.getInstance();
+        final Controller controller = requestMapping.getController(request);
         final HttpResponse response = new HttpResponse();
-        if (handler == null) {
+        if (controller == null) {
             response.redirect("/404.html");
 
             return response;
         }
+        try {
+            controller.service(request, response);
+        } catch (Exception e) {
+            response.redirect("/500.html");
+        }
 
-        return handler.handle(request, response);
+        return response;
     }
 }

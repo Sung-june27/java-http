@@ -5,7 +5,7 @@ import com.techcourse.model.User;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import org.apache.catalina.handler.util.StaticResourceLoader;
+import org.apache.catalina.controller.util.StaticResourceLoader;
 import org.apache.coyote.http11.HttpStatus;
 import org.apache.coyote.http11.request.HttpRequest;
 import org.apache.coyote.http11.response.HttpResponse;
