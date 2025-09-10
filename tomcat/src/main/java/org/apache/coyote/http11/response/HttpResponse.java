@@ -59,12 +59,12 @@ public class HttpResponse {
         return body;
     }
 
-    public void printResponse(final OutputStream outputStream) throws IOException {
-        outputStream.write(build().getBytes());
+    public void send(final OutputStream outputStream) throws IOException {
+        outputStream.write(formatResponse().getBytes());
         outputStream.flush();
     }
 
-    private String build() {
+    private String formatResponse() {
         final String statusLine = "HTTP/1.1 " + this.status.getCode() + " " + this.status.getMessage();
         final String headerLines = parseHeaders();
         final String body = getBody();
