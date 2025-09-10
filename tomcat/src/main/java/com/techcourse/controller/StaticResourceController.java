@@ -26,7 +26,7 @@ public class StaticResourceController extends AbstractController {
             final HttpResponse response
     ) throws IOException {
         final String body = StaticResourceLoader.load(request.getPath());
-        if (body.isBlank()) {
+        if (body == null) {
             response.redirect("/404.html");
             return;
         }
