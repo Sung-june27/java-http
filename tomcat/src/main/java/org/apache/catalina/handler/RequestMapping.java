@@ -1,4 +1,4 @@
-package org.apache.catalina.controller;
+package org.apache.catalina.handler;
 
 import com.techcourse.controller.HelloWorldController;
 import com.techcourse.controller.LoginController;
